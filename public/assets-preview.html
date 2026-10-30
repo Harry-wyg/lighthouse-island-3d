@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>灯塔岛 · 美术资源总览</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#10172b;color:#f2eee5;font:15px/1.65 system-ui,sans-serif}main{max-width:1320px;margin:auto;padding:48px 24px}h1{font-size:36px;margin:0}h2{margin:48px 0 16px}p{color:#a9b5ca}a{color:inherit;text-decoration:none}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}.wide{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}.portraits{grid-template-columns:repeat(5,1fr)}figure{margin:0;background:#1a2440;border:1px solid #2a3653;border-radius:14px;overflow:hidden}img{display:block;width:100%;aspect-ratio:1;object-fit:contain;background:#141d33}.wide img{aspect-ratio:16/9}.temper img{aspect-ratio:9/16}.shell img{background-color:#233047;background-image:linear-gradient(45deg,#2c3b54 25%,transparent 25%),linear-gradient(-45deg,#2c3b54 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2c3b54 75%),linear-gradient(-45deg,transparent 75%,#2c3b54 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}figcaption{padding:12px 14px}small{display:block;color:#a9b5ca;font-size:11px;overflow-wrap:anywhere}.missing{display:flex;align-items:center;justify-content:center;min-height:170px;background:#222b3c;color:#b9bfcb}.video{width:100%;aspect-ratio:16/9;background:#060b15}.badge{display:inline-block;margin:18px 0 0;padding:6px 14px;border:1px solid #475a77;border-radius:20px;color:#cbd8ee}@media(max-width:650px){main{padding:28px 16px}.portraits{grid-template-columns:repeat(2,1fr)}.grid{gap:12px}.wide{grid-template-columns:1fr}h1{font-size:28px}}
+</style>
+<main><h1>灯塔岛 · 美术资源总览</h1><p>第 12 项 · 点击图片查看原尺寸。棋盘格用于检查收藏物透明背景。</p><span id="count" class="badge">正在检查素材…</span><div id="content"></div></main>
+<script type="module">
+import {IMG,VIDEO,ROLE_TYPES,NPC_KEYS,MOODS} from './js/assets.js';
+const names={INTJ:'灯塔设计师',INTP:'星图解谜者',ENTJ:'远航船长',ENTP:'奇想发明家',INFJ:'潮汐预言者',INFP:'拾贝诗人',ENFJ:'篝火引路人',ENFP:'追风探险家',ISTJ:'补给管理员',ISFJ:'守夜医者',ESTJ:'营地总指挥',ESFJ:'炊烟守护者',ISTP:'修船匠',ISFP:'珊瑚画师',ESTP:'冲浪先锋',ESFP:'篝火主持人',chen:'老陈',lu:'小鹿',mu:'阿木',ma:'阿嬷',calm:'平静',happy:'开心',sad:'难过',angry:'生气',surprised:'惊讶',NT:'理性者之光',NF:'理想者之光',SJ:'守护者之光',SP:'探索者之光'};
+const shells=['月光扇贝','粉红宝螺','虎斑凤螺','一捧星砂','鹦鹉螺','珍珠母贝','紫海胆壳','蓝珊瑚枝','白砗磲','夕阳榧螺','五角海星','漂流瓶'];
+let images=0,videos=0;const update=()=>document.querySelector('#count').textContent=`图片 ${images} / 54 · 视频 ${videos} / 3`;
+function group(title,items,cls=''){
+ const h=document.createElement('h2');h.textContent=title;const grid=document.createElement('div');grid.className='grid '+cls;document.querySelector('#content').append(h,grid);
+ for(const [url,label,video] of items){const figure=document.createElement('figure');const a=document.createElement('a');a.href=url;a.target='_blank';const media=document.createElement(video?'video':'img');if(video){media.controls=true;media.preload='metadata';media.className='video';media.onloadedmetadata=()=>{videos++;update()}}else{media.alt=label;media.loading='eager';media.onload=()=>{images++;update()}}media.onerror=()=>{const placeholder=document.createElement('div');placeholder.className='missing';placeholder.textContent='待生成';a.replaceChildren(placeholder)};media.src=url;a.append(media);const caption=document.createElement('figcaption');caption.textContent=label;const small=document.createElement('small');small.textContent=url;caption.append(small);figure.append(a,caption);grid.append(figure)}
+}
+group('主视觉与分享预览',[[IMG.title,'标题主视觉'],[IMG.share,'分享缩略图']],'wide');
+group('16 型角色卡',ROLE_TYPES.map(t=>[IMG.role(t),t+' · '+names[t]]));
+for(const k of NPC_KEYS)group(names[k]+' · 表情',MOODS.map(m=>[IMG.portrait(k,m),names[m]]),'portraits');
+group('四种气质灯光',Object.keys(names).filter(k=>['NT','NF','SJ','SP'].includes(k)).map(k=>[IMG.temper(k),names[k]]),'temper');
+group('收藏物图鉴',shells.map((name,i)=>[IMG.shell(i+1),name]),'shell');
+group('过场视频',[[VIDEO.opening,'风暴沉船（横版）',true],[VIDEO.openingV,'风暴沉船（竖版）',true],[VIDEO.hiddenV,'沿着光回家（竖版）',true]],'wide');
+update();
+</script>
+</html>

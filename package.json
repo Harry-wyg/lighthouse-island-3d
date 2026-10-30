@@ -1,0 +1,15 @@
+{
+  "name": "lighthouse-island",
+  "version": "1.0.0",
+  "description": "灯塔岛 · 七日漂流 —— 3D 游戏化 MBTI 测评（H5 + 网页）",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "build:pages": "node scripts/build-pages.mjs",
+    "assets:check": "node scripts/check-assets.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

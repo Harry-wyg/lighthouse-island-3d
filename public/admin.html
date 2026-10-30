@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>灯塔岛运营后台</title>
+<style>
+  :root { --bg: #f6f3ec; --card: #fff; --ink: #2b2a33; --ink2: #77727f; --line: #e6dfd0; --acc: #ff8a5b; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #17161c; --card: #22212a; --ink: #eceaf2; --ink2: #9c98a8; --line: #34323e; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 20px 16px 60px; }
+  h1 { font-size: 22px; margin: 0 0 4px; } .sub { color: var(--ink2); margin-bottom: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .kpi, .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .kpi b { display: block; font-size: 26px; font-variant-numeric: tabular-nums; } .kpi small { color: var(--ink2); }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+  .card h2 { font-size: 15px; margin: 0 0 12px; }
+  .bar { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-variant-numeric: tabular-nums; }
+  .bar span:first-child { width: 52px; color: var(--ink2); } .bar i { height: 14px; background: var(--acc); border-radius: 4px; min-width: 2px; } .bar em { font-style: normal; color: var(--ink2); font-size: 12px; }
+  textarea { width: 100%; height: 220px; font: 12px/1.5 ui-monospace, Menlo, monospace; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 10px; }
+  button { font: inherit; padding: 8px 16px; border-radius: 999px; border: 0; background: var(--acc); color: #fff; font-weight: 700; cursor: pointer; margin-top: 8px; }
+  .msg { color: var(--ink2); margin-left: 8px; }
+  .login { max-width: 360px; margin: 18vh auto; } .login input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; }
+</style>
+</head>
+<body>
+<main id="m"></main>
+<script type="module">
+const m = document.getElementById('m');
+const token = new URLSearchParams(location.search).get('token');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+if (!token) {
+  m.innerHTML = `<div class="login card"><h2>灯塔岛运营后台</h2><input placeholder="ADMIN_TOKEN" id="t"><button id="go">进入</button></div>`;
+  document.getElementById('go').onclick = () => { location.search = '?token=' + encodeURIComponent(document.getElementById('t').value); };
+} else load();
+
+async function load() {
+  const r = await fetch('/api/admin/stats?token=' + encodeURIComponent(token));
+  if (!r.ok) { m.innerHTML = '<div class="card">口令错误或服务未启动。<a href="admin.html">重新输入</a></div>'; return; }
+  const s = await r.json();
+  const bars = (obj, max, fmt = v => v) => Object.entries(obj).map(([k, v]) => `<div class="bar"><span>${esc(k)}</span><i style="width:${max ? v / max * 70 : 0}%"></i><em>${fmt(v)}</em></div>`).join('');
+  const types = Object.fromEntries(Object.entries(s.typeDist).sort((a, b) => b[1] - a[1]));
+  const funnel = Object.fromEntries(s.funnel.map((v, i) => [i ? 'DAY ' + i : '序章', v]));
+  m.innerHTML = `
+    <h1>🗼 灯塔岛运营后台</h1><div class="sub">计分权重版本 v${s.weights.version} · 更新于 ${new Date(s.weights.updatedAt).toLocaleString()}</div>
+    <div class="grid">
+      <div class="kpi"><b>${s.users}</b><small>用户</small></div>
+      <div class="kpi"><b>${s.plays}</b><small>开局</small></div>
+      <div class="kpi"><b>${s.finished}</b><small>通关</small></div>
+      <div class="kpi"><b>${s.completion}%</b><small>完成率</small></div>
+      <div class="kpi"><b>${s.avgMinutes}</b><small>平均时长（分钟）</small></div>
+      <div class="kpi"><b>${s.shares}</b><small>分享过的结果</small></div>
+    </div>
+    <div class="cols">
+      <div class="card"><h2>📉 每日到达漏斗</h2>${bars(funnel, Math.max(1, ...s.funnel))}</div>
+      <div class="card"><h2>🧬 类型分布</h2>${bars(types, Math.max(1, ...Object.values(types))) || '<em>暂无数据</em>'}</div>
+      <div class="card"><h2>⚖️ 各维度平均倾向（第一个字母 %）</h2>${bars(s.dimAvg, 100, v => v + '%')}</div>
+      <div class="card"><h2>🎯 校准反馈（${s.feedback.count} 条自报类型）</h2>
+        <div class="bar"><span>完全一致</span><i style="width:${s.feedback.exactRate * 0.7}%"></i><em>${s.feedback.exactRate}%</em></div>
+        ${bars(s.feedback.dimRate, 100, v => v + '%')}
+        <div class="sub" style="margin:8px 0 0">平均准确度评分：${s.feedback.avgAccuracy} / 5</div></div>
+    </div>
+    <div class="card" style="margin-top:12px"><h2>🛠️ 信号权重热更新</h2>
+      <div class="sub">按信号 key 设置倍率，例如 {"d1.seat": 1.3, "d2.cloud0": 0.5}。新结果立刻使用；客户端离线计分也会在下次启动时拉取。</div>
+      <textarea id="w">${esc(JSON.stringify(s.weights.map, null, 2))}</textarea>
+      <button id="save">保存权重</button><span class="msg" id="msg"></span></div>`;
+  document.getElementById('save').onclick = async () => {
+    const msg = document.getElementById('msg');
+    let map; try { map = JSON.parse(document.getElementById('w').value); } catch { msg.textContent = 'JSON 格式错误'; return; }
+    const r = await fetch('/api/admin/weights?token=' + encodeURIComponent(token), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ map }) });
+    msg.textContent = r.ok ? `已保存为 v${(await r.json()).version}` : '保存失败：' + (await r.json()).error;
+  };
+}
+</script>
+</body>
+</html>

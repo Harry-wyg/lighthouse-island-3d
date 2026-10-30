@@ -1,0 +1,22 @@
+# Local state and credentials
+data/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.DS_Store
+node_modules/
+*.log
+
+# Media is served from Cloudinary; keep production originals locally.
+video-src/
+public/assets/**
+!public/assets/README.md
+scripts/image-production.json
+scripts/video-production.json
+scripts/*upload-manifest.json
+scripts/asset-validation.json
+
+# Generated static deployment
+dist/

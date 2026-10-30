@@ -1,0 +1,1029 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#141a33">
+<title>灯塔岛 · 七日漂流</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#2b2a33;--muted:#8a8597;--paper:#fffaf0;--line:#eadfca;--accent:#ff8a5b;--accent2:#ffb36b;
+  --NT:#8b7bff;--NF:#3ecf8e;--SJ:#4a90ff;--SP:#f5a623;
+}
+html,body{margin:0;height:100%}
+body{
+  background:#141a33;
+  background-image:radial-gradient(1200px 600px at 20% 10%,#26305e 0,transparent 60%),radial-gradient(900px 500px at 90% 90%,#3a2a55 0,transparent 60%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  color:var(--ink);overflow:hidden;
+}
+#desk{display:none;position:fixed;left:6vw;top:50%;transform:translateY(-50%);color:#dfe4ff;max-width:300px}
+#desk h1{font-size:34px;margin:0 0 12px;letter-spacing:2px}
+#desk p{opacity:.7;line-height:1.8;font-size:15px}
+@media (min-width:1000px){#desk{display:block}}
+#app{position:relative;width:100vw;height:100vh;height:100dvh;overflow:hidden;user-select:none;-webkit-user-select:none}
+@media (min-width:560px){#app{width:420px;height:min(880px,94vh);border-radius:34px;box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 9px #0c1026,0 0 0 10px #2a3160}}
+
+/* ---------- 背景 ---------- */
+#bg{position:absolute;inset:0;--sky1:#7ec8ef;--sky2:#e9f7ff;--sea1:#3fb0c9;--sea2:#1f6f95;--sand:#f4dca6;--sun:#fff4b8;--suny:12%}
+#bg.dawn{--sky1:#f39d8b;--sky2:#ffe4c4;--sea1:#73b5c4;--sea2:#2d6f8f;--sand:#efcf99;--sun:#ffd28a;--suny:42%}
+#bg.dusk{--sky1:#56468a;--sky2:#ff9e7a;--sea1:#5d6fa3;--sea2:#2a3466;--sand:#d8b483;--sun:#ffb27a;--suny:46%}
+#bg.night{--sky1:#0b1130;--sky2:#2b3a6b;--sea1:#1f2d5a;--sea2:#0a1230;--sand:#7d705f;--sun:#f4f1d0;--suny:9%}
+#bg.storm{--sky1:#262e3c;--sky2:#5b6577;--sea1:#3b4c5e;--sea2:#141c26;--sand:#7c7466;--sun:transparent}
+#bg.forest{--sky1:#3f7a4c;--sky2:#b6dca8;--sea1:#3d6e47;--sea2:#1f3d27;--sand:#5f8546;--sun:#f6ffd0;--suny:8%}
+#sky{position:absolute;inset:0;background:linear-gradient(180deg,var(--sky1),var(--sky2) 62%)}
+#sun{position:absolute;width:64px;height:64px;border-radius:50%;background:var(--sun);top:var(--suny);left:16%;box-shadow:0 0 70px 10px var(--sun);transition:top 1.4s ease,background 1s}
+#bg.night #sun{width:40px;height:40px;box-shadow:0 0 40px 4px rgba(244,241,208,.5)}
+.stars{position:absolute;inset:0 0 40% 0;opacity:0;transition:opacity 1.2s;
+  background-image:radial-gradient(1.6px 1.6px at 12% 22%,#fff,transparent),radial-gradient(1.2px 1.2px at 30% 8%,#fff,transparent),radial-gradient(2px 2px at 48% 30%,#fff,transparent),radial-gradient(1.2px 1.2px at 64% 14%,#fff,transparent),radial-gradient(1.6px 1.6px at 82% 26%,#fff,transparent),radial-gradient(1.2px 1.2px at 90% 6%,#fff,transparent),radial-gradient(1.4px 1.4px at 22% 40%,#fff,transparent),radial-gradient(1.2px 1.2px at 74% 44%,#fff,transparent);
+  animation:twinkle 3s ease-in-out infinite alternate}
+#bg.night .stars{opacity:1}
+@keyframes twinkle{to{filter:brightness(.6)}}
+#sea{position:absolute;left:0;right:0;bottom:0;height:40%;background:linear-gradient(var(--sea1),var(--sea2))}
+#sea::before{content:"";position:absolute;left:0;width:200%;top:-7px;height:14px;
+  background:radial-gradient(circle at 12px 14px,var(--sea1) 11px,transparent 12px) repeat-x;background-size:24px 14px;animation:wave 7s linear infinite}
+#sea::after{content:"";position:absolute;inset:18% 0 30% 0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.12) 0 2px,transparent 2px 26px);animation:glint 5s ease-in-out infinite alternate}
+@keyframes wave{to{transform:translateX(-50%)}}
+@keyframes glint{to{transform:translateX(20px);opacity:.5}}
+#sand{position:absolute;left:-10%;right:-10%;bottom:-7%;height:21%;background:var(--sand);border-radius:50% 50% 0 0/38% 38% 0 0;transition:background 1s}
+.rain{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity 1s;
+  background-image:repeating-linear-gradient(105deg,rgba(255,255,255,.28) 0 1px,transparent 1px 13px);background-size:300px 300px;animation:rain .45s linear infinite}
+#bg.storm .rain{opacity:1}
+#bg.storm #sky{animation:flash 7s infinite}
+@keyframes rain{to{background-position:-60px 300px}}
+@keyframes flash{0%,92%,96%,100%{filter:none}93%,95%{filter:brightness(2.2)}}
+#lh{position:absolute;right:8%;bottom:37%;width:54px;transition:opacity .6s}
+#lh svg{overflow:visible;display:block;width:100%}
+
+/* ---------- HUD ---------- */
+#hud{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:calc(12px + env(safe-area-inset-top)) 14px 8px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.35);z-index:5;opacity:0;transition:opacity .5s}
+#hud.show{opacity:1}
+#hud .day{font-weight:800;font-size:14px;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+#hud .parts{display:flex;gap:2px;font-size:13px;flex:none}
+#hud .parts span{filter:grayscale(1) brightness(1.6);opacity:.45;transition:all .5s}
+#hud .parts span.got{filter:none;opacity:1;transform:scale(1.1)}
+#hud button{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:99px;padding:5px 10px;font-size:12px;white-space:nowrap;flex:none;cursor:pointer;backdrop-filter:blur(6px)}
+
+/* ---------- 舞台 ---------- */
+#stage{position:absolute;top:calc(56px + env(safe-area-inset-top));left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;padding:0 16px 16px;z-index:2}
+.vig{margin-top:7vh;text-align:center}
+.vig .big{font-size:86px;line-height:1.1;filter:drop-shadow(0 8px 14px rgba(0,0,0,.25));animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.vig .cap{color:#fff;font-weight:700;margin:8px 0;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.cast{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.9);border-radius:99px;padding:4px 10px 4px 4px;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.chip i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-size:12px}
+.pop{animation:pop .5s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}}
+
+.panel{background:var(--paper);border-radius:22px;padding:18px 16px;width:100%;max-height:100%;overflow:auto;box-shadow:0 14px 40px rgba(0,0,0,.25);margin-top:auto;margin-bottom:auto}
+.ptitle{font-size:18px;font-weight:800;margin-bottom:4px}
+.phint{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:12px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:13px;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));cursor:pointer;margin-top:10px;font-family:inherit;box-shadow:0 6px 16px rgba(255,138,91,.35);transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.4;box-shadow:none;cursor:default}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:none}
+.row{display:flex;gap:8px}.row .btn{flex:1}
+
+/* ---------- 对话 & 选择 ---------- */
+#dialog,#choice{position:absolute;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:8;background:rgba(255,250,240,.97);border-radius:20px;padding:20px 18px 20px;box-shadow:0 12px 34px rgba(0,0,0,.28);transform:translateY(130%);opacity:0;transition:transform .35s cubic-bezier(.2,.9,.3,1),opacity .3s}
+#dialog.show,#choice.show{transform:none;opacity:1}
+#dialog{min-height:108px;cursor:pointer}
+#dialog .who{position:absolute;top:-13px;left:16px;background:var(--c);color:#fff;font-weight:800;font-size:13px;padding:4px 12px;border-radius:99px;box-shadow:0 3px 8px rgba(0,0,0,.2)}
+#dialog .txt{font-size:16px;line-height:1.75;min-height:56px;white-space:pre-wrap}
+#dialog .next{position:absolute;right:16px;bottom:8px;color:var(--accent);font-size:12px;opacity:0;animation:blink 1s infinite}
+#dialog.done .next{opacity:1}
+@keyframes blink{50%{transform:translateY(3px)}}
+#choice .q{font-weight:800;font-size:16px;line-height:1.6;margin-bottom:10px}
+#choice .opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:13px 14px;font-size:15px;line-height:1.55;margin-top:9px;cursor:pointer;color:var(--ink);font-family:inherit;transition:all .2s}
+#choice .opt:hover{border-color:var(--accent)}
+#choice .opt.picked{background:var(--accent);border-color:var(--accent);color:#fff;transform:scale(1.02)}
+#choice .opt:disabled:not(.picked){opacity:.35}
+.timer{height:6px;background:#f0e6d6;border-radius:9px;overflow:hidden;margin:-2px 0 6px}
+.timer i{display:block;height:100%;background:linear-gradient(90deg,#ff5b5b,#ffb36b);animation:shrink linear forwards}
+@keyframes shrink{from{width:100%}to{width:0}}
+
+/* ---------- 遮罩层 ---------- */
+.overlay{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.daycard{background:rgba(10,14,34,.92);color:#fff;text-align:center;opacity:0;transition:opacity .6s;pointer-events:none}
+.daycard.in{opacity:1}
+.daycard .dn{font-size:14px;letter-spacing:6px;opacity:.7}
+.daycard .dt{font-size:30px;font-weight:800;margin:10px 0;letter-spacing:3px}
+.daycard .ds{font-size:14px;opacity:.65}
+.daycard .line{width:40px;height:2px;background:var(--accent);margin:14px auto}
+
+#title{color:#fff;text-align:center;background:linear-gradient(180deg,rgba(11,17,48,.1),rgba(11,17,48,.55))}
+#title h1{font-size:40px;margin:0;letter-spacing:6px;text-shadow:0 4px 18px rgba(0,0,0,.4)}
+#title .sub{opacity:.9;margin:10px 0 4px;letter-spacing:2px}
+#title .meta{opacity:.7;font-size:13px;margin-bottom:30px}
+#title .btn{max-width:260px;font-size:17px;padding:15px}
+#title .big-lh{width:110px;margin-bottom:18px}
+#title .big-lh svg{width:100%;overflow:visible}
+
+.modal{background:rgba(10,14,34,.55);backdrop-filter:blur(3px)}
+.modal .panel{max-width:400px;margin:0}
+
+/* ---------- 小游戏 ---------- */
+.field{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:16px;font-family:inherit;background:#fff;outline:none}
+.field:focus{border-color:var(--accent)}
+textarea.field{resize:none;height:84px;line-height:1.6}
+.colors{display:flex;gap:10px;justify-content:center;margin:14px 0 4px}
+.colors b{width:34px;height:34px;border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 0 0 2px transparent;transition:box-shadow .2s}
+.colors b.on{box-shadow:0 0 0 2px var(--ink)}
+
+.fire{position:relative;width:280px;height:280px;margin:2vh auto 0}
+.fire .flame{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:64px;animation:flick .6s infinite alternate}
+@keyframes flick{to{transform:translate(-50%,-52%) scale(1.06)}}
+.fire .glow{position:absolute;inset:60px;border-radius:50%;background:radial-gradient(rgba(255,170,80,.55),transparent 70%)}
+.seat{position:absolute;width:132px;background:rgba(255,250,240,.95);border:0;border-radius:16px;padding:10px;font-size:12.5px;line-height:1.5;text-align:left;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.3);font-family:inherit;color:var(--ink);transition:transform .2s}
+.seat:hover{transform:scale(1.04)}
+.seat b{display:block;font-size:14px;margin-bottom:2px}
+
+.battery{width:150px;height:62px;border:4px solid #fff;border-radius:12px;padding:5px;position:relative;margin:4vh auto 8px}
+.battery::after{content:"";position:absolute;right:-12px;top:17px;width:7px;height:20px;background:#fff;border-radius:0 4px 4px 0}
+.battery .bf{height:100%;border-radius:5px;background:#5fe08a;transition:width .1s,background .5s}
+.blabel{color:#fff;text-align:center;font-weight:800;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.item{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:8px 2px;text-align:center;cursor:pointer;transition:all .2s;font-family:inherit;color:var(--ink)}
+.item .e{font-size:28px}.item .l{font-size:11px;color:var(--muted);margin-top:2px}
+.item.seen{background:#fff3e6;border-color:var(--accent2)}
+.item.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.item.gone{opacity:.15;pointer-events:none}
+.detail{min-height:64px;background:#fff;border-radius:12px;padding:12px;margin-top:12px;font-size:14px;line-height:1.7;color:#4a4656;border:1px dashed var(--line)}
+
+.cloudbox{background:linear-gradient(#8fcff3,#dff3ff);border-radius:16px;height:170px;display:grid;place-items:center;margin-bottom:6px}
+
+.prow{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px;margin-top:8px}
+.prow .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;flex:none}
+.prow .nm{font-weight:700;font-size:14px}
+.prow .inf{font-size:12px;color:var(--muted);line-height:1.5}
+.prow .inf div{display:none}.prow .inf div.on{display:block}
+.stp{margin-left:auto;display:flex;align-items:center;gap:6px;flex:none}
+.stp button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:18px;cursor:pointer;line-height:1;color:var(--ink)}
+.stp b{min-width:34px;text-align:center;font-size:14px}
+.pool{text-align:center;font-weight:800;font-size:15px;margin:4px 0}
+.tabs{display:flex;gap:8px;margin-bottom:4px}
+.tabs button{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:9px 4px;font-size:13px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.tabs button.on{background:#fff3e6;border-color:var(--accent2)}
+
+.task{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:11px 12px;margin-top:8px;cursor:pointer;font-size:15px;position:relative;overflow:hidden}
+.task .no{width:24px;height:24px;border-radius:50%;border:1.5px dashed #cfc3ad;display:grid;place-items:center;font-size:12px;font-weight:800;flex:none}
+.task.on .no{background:var(--accent);border:0;color:#fff}
+.task .pg{position:absolute;left:0;bottom:0;height:3px;background:#5fe08a;width:0}
+.task.doing .pg{transition:width .7s linear;width:100%}
+.task.done{opacity:.45;text-decoration:line-through;pointer-events:none}
+.task.done .no{background:#5fe08a;border:0;color:#fff}
+
+.bag{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.comp{border:2px dashed #cfc3ad;border-radius:14px;padding:8px;min-height:72px;cursor:pointer;background:#fff;transition:all .2s}
+.comp.ready{border-color:var(--accent);background:#fff3e6}
+.comp .ct{font-size:13px;font-weight:800}
+.comp .cc{font-size:20px;margin-top:4px;min-height:26px;word-break:break-all}
+
+.big-lh-wrap{margin:auto;text-align:center;color:#fff}
+.big-lh-wrap svg{width:170px;overflow:visible}
+.beam{transform-origin:60px 52px;animation:sweep 3.2s ease-in-out infinite;opacity:0;transition:opacity 1s}
+.lit .beam{opacity:1}
+@keyframes sweep{0%,100%{transform:scaleX(1)}50%{transform:scaleX(-1)}}
+.lamp{transition:fill 1.2s,filter 1.2s}
+.lit .lamp{filter:drop-shadow(0 0 10px var(--lamp))}
+
+/* ---------- 结果 ---------- */
+#result{position:absolute;inset:0;z-index:30;overflow-y:auto;background:#f6f1e7;-webkit-overflow-scrolling:touch}
+.rhead{padding:calc(40px + env(safe-area-inset-top)) 20px 64px;color:#fff;text-align:center;background:linear-gradient(160deg,var(--tc),#1b2148);position:relative}
+.rhead .tag{display:inline-block;font-size:12px;letter-spacing:3px;background:rgba(255,255,255,.2);padding:4px 12px;border-radius:99px}
+.rhead .emo{font-size:84px;margin:14px 0 4px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.3))}
+.rhead .type{font-size:52px;font-weight:900;letter-spacing:6px;line-height:1.1}
+.rhead .role{font-size:22px;font-weight:800;margin-top:6px}
+.rhead .tl{opacity:.85;margin-top:10px;font-size:14px;line-height:1.6}
+.rbody{padding:0 14px 40px;margin-top:-40px;position:relative}
+.card{background:#fff;border-radius:20px;padding:18px 16px;margin-bottom:12px;box-shadow:0 6px 20px rgba(0,0,0,.06)}
+.card h3{margin:0 0 12px;font-size:16px}
+.card p{margin:0;line-height:1.8;font-size:14.5px;color:#4a4656}
+.bar{margin:14px 0}
+.bar .lb{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px}
+.bar .lb span.dim{opacity:.4}
+.bar .tr{height:10px;background:#eee8dc;border-radius:9px;overflow:hidden;position:relative}
+.bar .tr i{display:block;height:100%;background:var(--tc);border-radius:9px;width:0;transition:width 1.2s cubic-bezier(.2,.9,.3,1)}
+.bar .bal{font-size:11px;color:var(--tc);text-align:center;margin-top:4px;font-weight:700}
+.mom{list-style:none;padding:0;margin:0}
+.mom li{padding:10px 0;border-bottom:1px dashed #eee3d0;font-size:14px;line-height:1.7;display:flex;gap:10px;align-items:flex-start}
+.mom li:last-child{border:0}
+.mom .d{flex:none;font-size:11px;font-weight:800;background:#fff3e6;color:var(--accent);padding:2px 7px;border-radius:7px;margin-top:3px}
+.mom .k{flex:none;margin-left:auto;font-weight:900;color:var(--tc)}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pills span{background:#f4efe5;border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600}
+.mates{display:flex;gap:10px}
+.mate{flex:1;border-radius:16px;background:#f8f4ec;padding:12px;text-align:center}
+.mate .e{font-size:34px}.mate .t{font-weight:900;margin-top:4px}.mate .n{font-size:12px;color:var(--muted)}.mate .h{font-size:11px;margin-top:6px;font-weight:700;color:var(--tc)}
+.quote{font-size:15px;line-height:1.8;color:#4a4656;border-left:3px solid var(--tc);padding-left:12px;font-style:italic}
+.disc{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.7;margin-top:16px}
+#posterBox img{width:100%;border-radius:14px;display:block}
+</style>
+</head>
+<body>
+<div id="desk">
+  <h1>灯塔岛 · 七日漂流</h1>
+  <p>一场荒岛冒险，不做一道选择题。<br>你在岛上的每一次行动，都会悄悄写下你的人格密码。<br>七天后，灯塔会用它的颜色告诉你：你是谁。</p>
+</div>
+
+<div id="app">
+  <div id="bg" class="dawn">
+    <div id="sky"></div><div class="stars"></div><div id="sun"></div>
+    <div id="lh"></div>
+    <div id="sea"></div><div id="sand"></div><div class="rain"></div>
+  </div>
+  <div id="hud">
+    <div class="day" id="hudDay">序章</div>
+    <div class="parts" id="hudParts"></div>
+    <button id="journalBtn">📔 日志</button>
+  </div>
+  <div id="stage"></div>
+  <div id="dialog"></div>
+  <div id="choice"></div>
+</div>
+
+<script>
+/* ================== 工具函数 ================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const app = $('#app');
+
+/* ================== 游戏状态 & 计分 ================== */
+// 每个维度：正值 = 第一个字母（E / S / T / J），负值 = 第二个字母（I / N / F / P）
+const DIMS = { EI: ['E', 'I'], SN: ['S', 'N'], TF: ['T', 'F'], JP: ['J', 'P'] };
+const LETTER_NAME = { E: '外向', I: '内向', S: '实感', N: '直觉', T: '思考', F: '情感', J: '计划', P: '随性' };
+const G = {
+  name: '旅人', color: '#ff8a5b', day: 0, note: '', journal: 0, parts: [],
+  sig: { EI: [], SN: [], TF: [], JP: [] },     // 全部信号
+  calm: { EI: [], SN: [], TF: [], JP: [] },    // 平常状态下的信号
+  stress: { EI: [], SN: [], TF: [], JP: [] },  // 压力状态下的信号
+  moments: [],
+};
+function add(dim, v, w = 1, moment, stress = false) {
+  if (!w) return;
+  const s = { v: clamp(v, -1, 1), w };
+  G.sig[dim].push(s);
+  (stress ? G.stress : G.calm)[dim].push(s);
+  if (moment) G.moments.push({ dim, v, w, text: moment, day: G.day });
+}
+function dimScore(dim, src = G.sig) {
+  let a = 0, b = 0;
+  for (const s of src[dim]) { a += s.v * s.w; b += s.w; }
+  return b ? a / b : 0;
+}
+const pct = dim => Math.round(50 + dimScore(dim) * 50); // 第一个字母的百分比
+
+/* ================== 角色 ================== */
+const NPC = {
+  me:   { n: '你',  c: '#ff8a5b' },
+  chen: { n: '老陈', c: '#c9774a' },
+  mu:   { n: '阿木', c: '#3f9e93' },
+  lu:   { n: '小鹿', c: '#e07aa3' },
+  ma:   { n: '阿嬷', c: '#8b6fcf' },
+};
+const chip = k => { const n = NPC[k]; return `<span class="chip" style="--c:${n.c}"><i>${n.n.slice(-1)}</i>${n.n}</span>`; };
+
+const PARTS = [
+  { e: '🛢️', n: '灯油' }, { e: '⚙️', n: '齿轮' }, { e: '🔍', n: '镜片' },
+  { e: '🪢', n: '绳索' }, { e: '🔥', n: '火种' }, { e: '💎', n: '透镜' },
+];
+const DAY_TITLES = ['序章', '沙滩上的人们', '岛屿的秘密', '争吵', '风暴将至', '潮灯节', '风暴', '点亮灯塔'];
+
+/* ================== 灯塔 SVG ================== */
+function lighthouseSVG(big) {
+  return `<svg viewBox="0 0 120 220">
+    <defs><linearGradient id="bm${big ? 'b' : 's'}" x1="0" x2="1"><stop offset="0" style="stop-color:var(--lamp,#fff);stop-opacity:.85"/><stop offset="1" style="stop-color:var(--lamp,#fff);stop-opacity:0"/></linearGradient></defs>
+    <g class="beam"><polygon points="60,52 320,18 320,86" fill="url(#bm${big ? 'b' : 's'})"/></g>
+    <path d="M-6 222 Q60 176 126 222Z" fill="#3a3f55"/>
+    <polygon points="40,200 80,200 72,70 48,70" fill="#f4f1ea"/>
+    <polygon points="41.5,175 78.5,175 77,150 43,150" fill="#e06c5a"/>
+    <polygon points="44.6,125 75.4,125 73.8,100 46.2,100" fill="#e06c5a"/>
+    <rect x="53" y="182" width="14" height="18" rx="7" fill="#7a5a44"/>
+    <rect x="40" y="64" width="40" height="7" rx="2" fill="#3a3f55"/>
+    <rect x="47" y="40" width="26" height="24" rx="3" fill="#2b2f44"/>
+    <circle class="lamp" cx="60" cy="52" r="8" style="fill:var(--lampfill,#59607a)"/>
+    <polygon points="43,41 77,41 60,22" fill="#e06c5a"/>
+  </svg>`;
+}
+$('#lh').innerHTML = lighthouseSVG(false);
+
+/* ================== 场景 / HUD ================== */
+function setScene(name) { $('#bg').className = name; }
+function clearStage() { $('#stage').innerHTML = ''; }
+function vignette(big, cast = [], cap = '') {
+  $('#stage').innerHTML = `<div class="vig pop"><div class="big">${big}</div>${cap ? `<div class="cap">${cap}</div>` : ''}<div class="cast">${cast.map(chip).join('')}</div></div>`;
+}
+function panel(html) { const s = $('#stage'); s.innerHTML = ''; const p = el('div', 'panel pop', html); s.append(p); return p; }
+function updateHud() {
+  $('#hudDay').textContent = G.day === 0 ? '序章' : `DAY ${G.day}/7 · ${DAY_TITLES[G.day]}`;
+  $('#hudParts').innerHTML = PARTS.map((p, i) => `<span class="${G.parts.includes(i) ? 'got' : ''}" title="${p.n}">${p.e}</span>`).join('');
+}
+async function gainPart(i) {
+  G.parts.push(i); updateHud();
+  await talk([`✨ 获得灯塔零件：${PARTS[i].e} ${PARTS[i].n}（${G.parts.length}/6）`]);
+}
+async function dayCard(n, title, sub) {
+  G.day = n; updateHud(); clearStage();
+  const o = el('div', 'overlay daycard', `<div class="dn">${n ? 'DAY ' + n : 'PROLOGUE'}</div><div class="line"></div><div class="dt">${title}</div><div class="ds">${sub}</div>`);
+  app.append(o); await wait(60); o.classList.add('in');
+  await wait(2000); o.classList.remove('in'); await wait(650); o.remove();
+}
+
+/* ================== 对话 ================== */
+const fmt = t => t.replace(/\{name\}/g, G.name);
+function say(text, who) {
+  return new Promise(res => {
+    const d = $('#dialog');
+    const n = who ? NPC[who] : null;
+    d.innerHTML = (n ? `<div class="who" style="--c:${n.c}">${who === 'me' ? G.name : n.n}</div>` : '') + `<div class="txt"></div><div class="next">点击继续 ▼</div>`;
+    d.classList.remove('done'); d.classList.add('show');
+    const t = d.querySelector('.txt'), full = fmt(text);
+    let i = 0, done = false;
+    const iv = setInterval(() => { i++; t.textContent = full.slice(0, i); if (i >= full.length) finish(); }, 26);
+    function finish() { clearInterval(iv); t.textContent = full; done = true; d.classList.add('done'); }
+    d.onclick = () => { if (!done) return finish(); d.onclick = null; res(); };
+  });
+}
+async function talk(lines) {
+  for (const l of lines) Array.isArray(l) ? await say(l[1], l[0]) : await say(l);
+  $('#dialog').classList.remove('show');
+  await wait(200);
+}
+document.addEventListener('keydown', e => {
+  if ((e.key === ' ' || e.key === 'Enter') && $('#dialog').classList.contains('show') && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); $('#dialog').click(); }
+});
+
+/* ================== 选择 ================== */
+// O(选项文字, 维度, 方向, 权重, 关键时刻文字或函数(rt) )
+const O = (t, dim, v, w = 1, m) => ({ t, dim, v, w, m });
+function choose(prompt, opts, { timer = 0 } = {}) {
+  return new Promise(res => {
+    const c = $('#choice'); c.innerHTML = '';
+    c.append(el('div', 'q', fmt(prompt)));
+    let tm;
+    if (timer) {
+      const bar = el('div', 'timer', '<i></i>'); bar.firstChild.style.animationDuration = timer + 's'; c.append(bar);
+      tm = setTimeout(() => finish(null), timer * 1000);
+    }
+    for (const o of shuffle(opts)) { const b = el('button', 'opt', fmt(o.t)); b.onclick = () => finish(o, b); c.append(b); }
+    requestAnimationFrame(() => c.classList.add('show'));
+    const t0 = performance.now();
+    let over = false;
+    function finish(o, b) {
+      if (over) return; over = true; clearTimeout(tm);
+      $$('button', c).forEach(x => x.disabled = true);
+      if (b) b.classList.add('picked');
+      const rt = (performance.now() - t0) / 1000;
+      if (o) add(o.dim, o.v, o.w, typeof o.m === 'function' ? o.m(rt) : o.m, timer > 0);
+      setTimeout(() => { c.classList.remove('show'); setTimeout(() => res({ o, rt }), 250); }, 420);
+    }
+  });
+}
+
+/* ================== 日志 ================== */
+$('#journalBtn').onclick = () => {
+  G.journal++;
+  const days = DAY_TITLES.slice(1).map((t, i) => `<div style="padding:6px 0;border-bottom:1px dashed var(--line);font-size:14px">${i + 1 < G.day ? '✅' : i + 1 === G.day ? '📍' : '⬜️'} DAY ${i + 1} · ${i + 1 <= G.day ? t : '？？？'}</div>`).join('');
+  const parts = PARTS.map((p, i) => `<span style="font-size:22px;${G.parts.includes(i) ? '' : 'filter:grayscale(1);opacity:.3'}" title="${p.n}">${p.e}</span>`).join(' ');
+  const m = el('div', 'overlay modal', `<div class="panel pop"><div class="ptitle">📔 回声岛生存日志</div><div class="phint">目标：集齐 6 个零件，在第七天点亮灯塔。</div><div style="margin-bottom:10px">${parts}</div>${days}<button class="btn">合上日志</button></div>`);
+  m.querySelector('.btn').onclick = () => m.remove();
+  app.append(m);
+};
+
+/* ================== 标题 & 序章 ================== */
+function titleScreen() {
+  return new Promise(res => {
+    setScene('dawn');
+    const t = el('div', 'overlay', `<div class="big-lh">${lighthouseSVG(true)}</div><h1>灯塔岛</h1><div class="sub">· 七日漂流 ·</div><div class="meta">一场荒岛冒险，测出你的 MBTI<br>约 10 分钟 · 没有一道题目</div><button class="btn">开始漂流</button>`);
+    t.id = 'title'; app.append(t);
+    t.querySelector('.btn').onclick = async () => { t.style.transition = 'opacity .6s'; t.style.opacity = 0; await wait(600); t.remove(); res(); };
+  });
+}
+function nameGame() {
+  return new Promise(res => {
+    const colors = ['#ff8a5b', '#4a90ff', '#3ecf8e', '#e07aa3', '#8b7bff', '#f5a623'];
+    const p = panel(`<div class="ptitle">你是谁？</div><div class="phint">海水泡得你有点发懵，但你还记得自己的名字。</div>
+      <input class="field" maxlength="8" placeholder="输入你的名字（最多 8 个字）">
+      <div class="phint" style="margin:14px 0 0;text-align:center">选一件外套的颜色</div>
+      <div class="colors">${colors.map((c, i) => `<b style="background:${c}" class="${i ? '' : 'on'}" data-c="${c}"></b>`).join('')}</div>
+      <button class="btn">就是我了</button>`);
+    $$('.colors b', p).forEach(b => b.onclick = () => { $$('.colors b', p).forEach(x => x.classList.remove('on')); b.classList.add('on'); G.color = b.dataset.c; });
+    p.querySelector('.btn').onclick = () => {
+      G.name = p.querySelector('input').value.trim() || '旅人';
+      NPC.me.c = G.color; clearStage(); res();
+    };
+  });
+}
+async function prologue() {
+  await dayCard(0, '漂流', '风暴过后，你醒在一座陌生的岛上');
+  setScene('dawn');
+  await talk(['……哗——哗——', '海浪一下一下拍着你的脚踝。', '你睁开眼，脸贴着湿漉漉的沙子，嘴里全是咸味。', '昨晚的风暴把船撕成了碎片。你只记得自己抱着一块木板，漂了很久很久。']);
+  await nameGame();
+  $('#hud').classList.add('show'); updateHud();
+  vignette('📕');
+  await talk(['你从湿透的口袋里摸出一本小册子——《荒岛生存指南》。']);
+  const { o } = await choose('要先翻一翻吗？', [
+    O('翻一翻，心里有底再出发', 'JP', 1, .3),
+    O('不看了，边走边摸索', 'JP', -1, .3),
+  ]);
+  if (o.v > 0) await talk(['📖 指南第一页：点击对话框继续。', '📖 指南第二页：遇到选择时，跟着直觉走。选项没有对错——只有最真实的你，才能点亮灯塔。', '📖 指南第三页：右上角的「日志」可以随时查看进度。']);
+  else await talk(['你把指南塞回口袋。反正……也就是一座岛嘛。', '（小提示：选项没有对错，跟着第一反应走就好）']);
+}
+
+/* ================== DAY 1 · E/I ================== */
+function seatGame() {
+  return new Promise(res => {
+    const s = $('#stage'); s.innerHTML = '';
+    const f = el('div', 'fire pop', `<div class="glow"></div><div class="flame">🔥</div>`);
+    const seats = [
+      { x: 74, y: -10, b: '热闹的那一圈', d: '老陈在讲跑船的故事，小鹿笑得前仰后合', v: 1, m: '篝火晚会上，你坐进了最热闹的那一圈' },
+      { x: -20, y: 180, b: '阿木身边', d: '他一个人坐着，低头削一根木棍', v: -.5, m: '篝火晚会上，你坐到了安静的阿木身边' },
+      { x: 168, y: 180, b: '树影下的空位', d: '看得见火光，也听得见海浪', v: -1, m: '篝火晚会上，你选了树影下安静的位置' },
+    ];
+    for (const st of seats) {
+      const b = el('button', 'seat', `<b>${st.b}</b>${st.d}`);
+      b.style.left = st.x + 'px'; b.style.top = st.y + 'px';
+      b.onclick = () => { if (f.dataset.done) return; f.dataset.done = 1; add('EI', st.v, 1, st.m); f.style.opacity = .3; setTimeout(() => res(st), 300); };
+      f.append(b);
+    }
+    s.append(el('div', 'blabel pop', '点击你想坐的位置'), f);
+  });
+}
+async function batteryGame() {
+  const s = $('#stage');
+  s.innerHTML = `<div class="pop"><div class="battery"><div class="bf" style="width:100%"></div></div><div class="blabel">社交电量 <span>100</span>%</div></div>`;
+  const bf = $('.bf', s), lb = $('.blabel span', s);
+  const drain = async (to) => {
+    let w = parseInt(lb.textContent);
+    while (w > to) { w--; bf.style.width = w + '%'; lb.textContent = w; bf.style.background = w < 30 ? '#ff6b5b' : w < 60 ? '#ffc04d' : '#5fe08a'; await wait(18); }
+  };
+  await talk(['篝火聊到了深夜。大家轮流讲自己为什么会在那艘船上。']);
+  await drain(32);
+  await talk([['lu', '我们去海边放孔明灯吧！我做了好几个，一人一个，一起放！']]);
+  await choose('你的社交电量还剩 32%……', [
+    O('走！人多才好玩，电量什么的不重要', 'EI', 1, 1, '社交电量只剩三成时，你还是跟大家去放了孔明灯'),
+    O('「你们去吧，我回帐篷歇会儿。」', 'EI', -1, 1, '社交电量只剩三成时，你选择回帐篷安静一下'),
+  ]);
+  await choose('躺下之前你想：明天要「充满电」，最好的方式是——', [
+    O('和大家一起热热闹闹地吃顿早饭，聊聊天', 'EI', 1, 1),
+    O('一个人早起，听着海浪发会儿呆', 'EI', -1, 1),
+  ]);
+}
+async function day1() {
+  await dayCard(1, '沙滩上的人们', '主线：找到灯油');
+  setScene('day'); vignette('🏝️', ['chen', 'lu', 'mu']);
+  await talk([
+    '沙滩另一头，几个人影正朝你挥手。',
+    ['chen', '嘿！还有一个活着的！快过来！'],
+    ['chen', '我叫老陈，船上的大副。这是小鹿，那边那个是阿木。'],
+    ['lu', '你没受伤吧？我们刚生了火，正在煮海带汤～'],
+    ['mu', '……你好。'],
+    '远处的山崖上，立着一座熄灭的灯塔。',
+    ['chen', '只要把它重新点亮，过往的船就能看见我们。不过听说灯塔缺了好几样零件。'],
+  ]);
+  await choose('今天该怎么开始？', [
+    O('留在营地边干活边聊，先认识每个人', 'EI', 1, 1, '刚上岛的第一天，你选择先和大家待在一起'),
+    O('一个人去礁石区转转，安静地摸清这座岛', 'EI', -1, 1, '刚上岛的第一天，你选择一个人去礁石区走走'),
+  ]);
+  setScene('day'); vignette('🧓', ['ma']);
+  await talk(['在礁石和营地之间的小路上，你遇见一位陌生的老人，正坐着补渔网。', '她抬头看了你一眼，又低下头继续干活。']);
+  await choose('你会……', [
+    O('主动上前打招呼：「您好！您是岛上的人吗？」', 'EI', 1, 1, '遇见陌生的阿嬷，你主动上前搭话'),
+    O('在旁边站一会儿，看她补网，等她先开口', 'EI', -1, 1, '遇见陌生的阿嬷，你安静地等她先开口'),
+  ]);
+  await talk([['ma', '……年轻人，你们是从那艘破船上来的吧。'], ['ma', '我在这岛上住了四十年了，大家叫我阿嬷。修灯塔？我那儿有一罐灯油，拿去吧。']]);
+  await gainPart(0);
+  setScene('night'); clearStage();
+  await talk(['夜幕降临，大家围坐在篝火旁。']);
+  await seatGame();
+  await batteryGame();
+  await choose('第二天要分组去森林里找零件。你希望——', [
+    O('四个人一起去，路上还能说说话', 'EI', 1, .8),
+    O('两两分组，或者干脆我自己一路', 'EI', -1, .8),
+  ]);
+}
+
+/* ================== DAY 2 · S/N ================== */
+function exploreHut() {
+  return new Promise(res => {
+    const items = shuffle([
+      { e: '👣', l: '门口的脚印', d: '门口有三串脚印，一串深、两串浅，都朝着东边。', k: 'S' },
+      { e: '🍎', l: '桌上的野果', d: '木桌上有 7 个野果，其中 2 个已经发软，看起来放了三四天。', k: 'S' },
+      { e: '🔧', l: '旧扳手', d: '一把磨损严重的扳手，握柄上缠着一圈褪色的蓝布。', k: 'S' },
+      { e: '🕯️', l: '半截蜡烛', d: '半截蜡烛立在窗台上，底下积了 3 层蜡油。', k: 'S' },
+      { e: '🌀', l: '墙上的符号', d: '墙上刻着一圈圈螺旋，越往里越密，像是在倒数着什么。', k: 'N' },
+      { e: '🗺️', l: '残缺的地图', d: '一张没画完的地图，边缘用很小的字写着：「回去」。', k: 'N' },
+      { e: '🪞', l: '朝海的镜子', d: '一面镜子被特意摆成正对大海的角度，镜面擦得很干净。', k: 'N' },
+      { e: '📖', l: '日记最后一页', d: '日记的最后一页，只写了一个字：「等」。', k: 'N' },
+    ]);
+    const seen = [];
+    const p = panel(`<div class="ptitle">🏚️ 守塔人的小屋</div><div class="phint">屋里很暗。点击物品仔细看看（至少看 4 样，看多少随你）</div><div class="grid4"></div><div class="detail">……屋里有一股旧木头和海盐的味道。</div><button class="btn" disabled>离开小屋（0/4）</button>`);
+    const grid = $('.grid4', p), det = $('.detail', p), btn = $('.btn', p);
+    items.forEach(it => {
+      const b = el('button', 'item', `<div class="e">${it.e}</div><div class="l">${it.l}</div>`);
+      b.onclick = () => {
+        det.textContent = it.d;
+        if (!seen.includes(it)) { seen.push(it); b.classList.add('seen'); }
+        btn.disabled = seen.length < 4; btn.textContent = `离开小屋（${Math.min(seen.length, 4)}/4）`;
+      };
+      grid.append(b);
+    });
+    btn.onclick = () => {
+      const first4 = seen.slice(0, 4), sCount = first4.filter(x => x.k === 'S').length;
+      add('SN', (sCount - 2) / 2, .9);
+      add('SN', seen[0].k === 'S' ? 1 : -1, .4, `在守塔人的小屋里，你第一眼注意到的是「${seen[0].l}」`);
+      res();
+    };
+  });
+}
+function cloudSVG(seed) {
+  let r = seed * 9301 + 49297; const rnd = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+  let c = '';
+  for (let i = 0; i < 9; i++) c += `<circle cx="${60 + rnd() * 140}" cy="${55 + rnd() * 50}" r="${18 + rnd() * 26}" fill="#fff"/>`;
+  return `<svg viewBox="0 0 260 160" width="240" style="filter:drop-shadow(0 6px 10px rgba(0,60,120,.15))">${c}</svg>`;
+}
+async function cloudGame() {
+  const rounds = [
+    ['像一只趴着打盹的猫', '像一句还没说完的话', '小鹿指的那朵云，你说它'],
+    ['像一团刚出锅的棉花糖', '像有人在天上挥手告别', '又飘来一朵，你说它'],
+  ];
+  for (let i = 0; i < rounds.length; i++) {
+    panel(`<div class="ptitle">☁️ 看云</div><div class="phint">躺在草地上休息时，小鹿指着天空：「你看那朵云像什么？」</div><div class="cloudbox">${cloudSVG(i + 3)}</div>`);
+    const [s, n, q] = rounds[i];
+    await choose(q + '……', [O(s, 'SN', 1, .8), O(n, 'SN', -1, .8, i === 0 ? '小鹿让你看云，你说它「像一句还没说完的话」' : null)]);
+  }
+  clearStage();
+}
+async function day2() {
+  await dayCard(2, '岛屿的秘密', '主线：找到齿轮');
+  setScene('day'); vignette('🧓', ['ma']);
+  await talk([['ma', '灯塔以前的守塔人，就住在森林深处的小屋里。'], ['ma', '他十年前出海，再也没回来。齿轮……也许在他那儿。']]);
+  await choose('趁着出发前，你更想先问阿嬷——', [
+    O('「森林里哪儿有淡水？哪些果子能吃？」', 'SN', 1, 1, '出发前，你先问阿嬷哪里有淡水、哪些果子能吃'),
+    O('「这座岛为什么叫回声岛？有什么传说吗？」', 'SN', -1, 1, '出发前，你先问阿嬷这座岛有什么传说'),
+  ]);
+  setScene('forest'); vignette('🌲', ['lu', 'mu']);
+  await talk(['你们穿过一片湿漉漉的树林，终于找到了那间小屋。', '门没锁。吱呀一声，你推开了它。']);
+  await exploreHut();
+  clearStage();
+  await talk([['ma', '回来啦？那屋里都有些什么？']]);
+  await choose('你脱口而出的是——', [
+    O('「桌上有 7 个果子，窗台有半截蜡烛，门口还有脚印。」', 'SN', 1, 1, '阿嬷问小屋里有什么，你一口气报出了果子、蜡烛和脚印'),
+    O('「感觉……有人在那里等了很久很久。」', 'SN', -1, 1, '阿嬷问小屋里有什么，你说「感觉有人在那里等了很久」'),
+  ]);
+  await choose('那你觉得，守塔人去哪儿了？', [
+    O('脚印往东边去了，应该先顺着东边找找', 'SN', 1, .8),
+    O('地图上写着「回去」……他也许是想回到某个地方', 'SN', -1, .8),
+  ]);
+  setScene('forest'); vignette('⚙️', ['mu']);
+  await talk(['小屋地板下有一个生锈的铁箱，齿轮就卡在里面的机关中。', ['mu', '……这个机关，我拆不动。']]);
+  await choose('你打算怎么拆？', [
+    O('找找箱子上有没有刻痕或说明，一步一步按顺序来', 'SN', 1, 1, '拆生锈的机关时，你先找说明、一步步按顺序来'),
+    O('先看整体结构，猜出它的原理再动手', 'SN', -1, 1, '拆生锈的机关时，你先琢磨它的原理再动手'),
+  ]);
+  await talk(['咔哒一声——机关开了。']);
+  await gainPart(1);
+  setScene('day');
+  await cloudGame();
+}
+
+/* ================== DAY 3 · T/F ================== */
+function waterGame() {
+  return new Promise(res => {
+    const ppl = [
+      { k: 'me', c: '今天：捡了一下午的柴火', m: '状态：有点累，但还好' },
+      { k: 'chen', c: '今天：搬了一整天石头 ⭐⭐⭐⭐⭐', m: '状态：很累，嘴上说没事' },
+      { k: 'mu', c: '今天：发烧，几乎没干活 ⭐', m: '状态：嘴唇干裂，一直在说「对不起」' },
+      { k: 'lu', c: '今天：做了三顿饭 ⭐⭐⭐', m: '状态：刚被老陈说了几句，有点委屈' },
+    ];
+    const cnt = { me: 0, chen: 0, mu: 0, lu: 0 }, TOTAL = 10;
+    let firstInfo = null;
+    const p = panel(`<div class="ptitle">💧 分配淡水</div><div class="phint">只剩 10 瓶水，要撑到明天。由你来分。</div>
+      <div class="tabs"><button data-t="c">📊 查看今日贡献</button><button data-t="m">💭 查看身体和心情</button></div>
+      <div class="rows"></div><div class="pool">剩余：<span>10</span> 瓶</div><button class="btn" disabled>就这么分</button>`);
+    const rows = $('.rows', p);
+    ppl.forEach(x => {
+      const n = NPC[x.k];
+      const r = el('div', 'prow', `<div class="av" style="background:${n.c}">${x.k === 'me' ? '我' : n.n.slice(-1)}</div><div><div class="nm">${x.k === 'me' ? G.name + '（你）' : n.n}</div><div class="inf"><div class="c">${x.c}</div><div class="m">${x.m}</div></div></div><div class="stp"><button>−</button><b>0 瓶</b><button>＋</button></div>`);
+      const [minus, plus] = $$('.stp button', r), b = $('.stp b', r);
+      const upd = () => {
+        b.textContent = cnt[x.k] + ' 瓶';
+        const left = TOTAL - Object.values(cnt).reduce((a, c) => a + c, 0);
+        $('.pool span', p).textContent = left; $('.btn', p).disabled = left !== 0;
+      };
+      minus.onclick = () => { if (cnt[x.k] > 0) { cnt[x.k]--; upd(); } };
+      plus.onclick = () => { if (Object.values(cnt).reduce((a, c) => a + c, 0) < TOTAL) { cnt[x.k]++; upd(); } };
+      rows.append(r);
+    });
+    $$('.tabs button', p).forEach(t => t.onclick = () => {
+      if (!firstInfo) firstInfo = t.dataset.t;
+      t.classList.toggle('on');
+      $$('.inf .' + t.dataset.t, p).forEach(d => d.classList.toggle('on'));
+    });
+    $('.btn', p).onclick = () => {
+      const diff = cnt.mu - cnt.chen;
+      // 阿木多 → 情感；老陈多或平均 → 思考
+      add('TF', diff === 0 ? .3 : -clamp(diff / 3, -1, 1), 1.2, `分水时，你给了生病的阿木 ${cnt.mu} 瓶、干活最多的老陈 ${cnt.chen} 瓶`);
+      if (firstInfo) add('TF', firstInfo === 'c' ? 1 : -1, .35);
+      clearStage(); res(cnt);
+    };
+  });
+}
+async function day3() {
+  await dayCard(3, '争吵', '主线：找到镜片');
+  setScene('day'); vignette('🍞', ['chen', 'mu', 'lu']);
+  await talk([
+    '第三天早上，食物和水都只剩一半了。阿木发起了高烧。',
+    ['chen', '我一天搬几十块石头，阿木躺了一整天，凭什么吃一样多？'],
+    ['lu', '老陈！阿木是生病了，又不是偷懒！'],
+    ['mu', '……没关系，我少吃点就行。'],
+    '大家都看向你。',
+  ]);
+  await choose('你开口说——', [
+    O('「按劳分配吧，规则清楚，大家才不会互相猜忌。」', 'TF', 1, 1, '食物不够时，你提议按劳分配，让规则说话'),
+    O('「阿木病了，先照顾他。这不是谁吃亏的问题。」', 'TF', -1, 1, '食物不够时，你站出来说先照顾生病的阿木'),
+  ]);
+  await talk(['争吵暂时平息了。老陈把剩下的水搬了过来，「你来分吧，我们都听你的。」']);
+  await waterGame();
+  setScene('day'); vignette('😢', ['lu']);
+  await talk(['下午，小鹿蹲在礁石边，哭得停不下来。', ['lu', '我……我把刚找到的灯塔镜片弄丢了。就在这附近，被浪冲走了……'], ['lu', '大家一定会怪我的。']]);
+  await choose('你先——', [
+    O('「别急，我们按潮水的方向分头找，肯定冲不远。」', 'TF', 1, 1, '小鹿弄丢镜片哭起来时，你先帮她想办法找回来'),
+    O('蹲下来抱抱她：「没人会怪你，你已经很努力了。」', 'TF', -1, 1, '小鹿弄丢镜片哭起来时，你先蹲下来安慰她'),
+  ]);
+  await talk(['半小时后，你们在一个小水洼里找到了镜片。小鹿破涕为笑。']);
+  await gainPart(2);
+  setScene('night'); vignette('🥫', ['chen']);
+  await talk(['深夜，你起来喝水，正好撞见老陈在偷偷吃一罐罐头。', ['chen', '……被你看到了。'], ['chen', '我腿上的旧伤又犯了，饿得睡不着。']]);
+  await choose('你会——', [
+    O('「规则就是规则。明天你的那份要扣掉，大家才会服气。」', 'TF', 1, 1, '撞见老陈偷吃罐头，你坚持按规则扣掉他明天的份'),
+    O('「腿疼怎么不早说？这罐算我的，明天我跟大家解释。」', 'TF', -1, 1, '撞见老陈偷吃罐头，你选择替他打圆场'),
+  ]);
+  await choose('躺下之后，你更在意今天的哪件事？', [
+    O('分配到底合不合理，明天要不要改改规则', 'TF', 1, .8),
+    O('大家今天是不是都受了委屈，关系有没有变差', 'TF', -1, .8),
+  ]);
+}
+
+/* ================== DAY 4 · J/P ================== */
+function planGame() {
+  return new Promise(res => {
+    const tasks = ['🏠 加固屋顶', '💧 收集淡水', '🪵 搬运柴火', '🎣 收回渔网', '🥫 把食物搬进山洞', '🚩 检查信号旗'];
+    const order = []; const t0 = performance.now(); let left = 45, iv;
+    const p = panel(`<div class="ptitle">⛈️ 风暴前的准备</div><div class="phint">风暴还有 <b class="cd">45</b> 秒到达。你可以先依次点击任务排好顺序，也可以直接开干。</div><div class="list"></div><div class="row"><button class="btn ghost go">别想了，直接开干！</button><button class="btn plan" disabled>按这个顺序执行</button></div>`);
+    const list = $('.list', p), planBtn = $('.plan', p);
+    const draw = () => {
+      list.innerHTML = '';
+      tasks.forEach(t => {
+        const i = order.indexOf(t);
+        const d = el('div', 'task' + (i >= 0 ? ' on' : ''), `<div class="no">${i >= 0 ? i + 1 : ''}</div>${t}`);
+        d.onclick = () => { i >= 0 ? order.splice(i, 1) : order.push(t); draw(); };
+        list.append(d);
+      });
+      planBtn.disabled = order.length !== tasks.length;
+    };
+    draw();
+    iv = setInterval(() => { left--; $('.cd', p).textContent = left; if (left <= 0) start(order.length === tasks.length); }, 1000);
+    $('.go', p).onclick = () => start(false);
+    planBtn.onclick = () => start(true);
+    let started = false;
+    function start(planned) {
+      if (started) return; started = true; clearInterval(iv);
+      const pt = Math.round((performance.now() - t0) / 1000);
+      if (planned) add('JP', 1, 1, `风暴来临前，你花了 ${pt} 秒把 6 项任务全部排好了顺序`);
+      else if (order.length >= 3) add('JP', .2, 1);
+      else add('JP', -1, 1, '风暴来临前，你没排计划，直接撸起袖子开干');
+      execute(planned);
+    }
+    function execute(planned) {
+      const done = []; let interrupted = false;
+      const seq = planned ? order : tasks;
+      p.innerHTML = `<div class="ptitle">🔨 开工！</div><div class="phint">点击任务完成它。</div><div class="list"></div>`;
+      const l = $('.list', p);
+      seq.forEach(t => {
+        const d = el('div', 'task', `<div class="no"></div>${t}<div class="pg"></div>`);
+        d.onclick = async () => {
+          if (d.classList.contains('doing') || interrupted) return;
+          d.classList.add('doing'); await wait(720);
+          d.classList.add('done'); $('.no', d).textContent = '✓'; done.push(t);
+          if (done.length === 3) {
+            interrupted = true;
+            await choose('哗啦——屋顶突然漏水了！你会——', [
+              O('停一下，把剩下的任务重新排一遍', 'JP', 1, 1, '干到一半屋顶漏水，你停下来重新排了剩下的任务'),
+              O('先冲过去补漏，剩下的到时候再说', 'JP', -1, 1, '干到一半屋顶漏水，你先冲过去补漏，其他的再说'),
+            ]);
+            interrupted = false;
+          }
+          if (done.length === tasks.length) {
+            if (planned) { const same = done.slice(0, 3).every((t, i) => t === order[i]); add('JP', same ? 1 : -.6, .4); }
+            await wait(300); clearStage(); res();
+          }
+        };
+        l.append(d);
+      });
+    }
+  });
+}
+function packGame() {
+  return new Promise(res => {
+    const items = [
+      { e: '🥫', c: 'food' }, { e: '🍞', c: 'food' }, { e: '🍫', c: 'food' },
+      { e: '🔦', c: 'tool' }, { e: '🪢', c: 'tool' }, { e: '🔪', c: 'tool' },
+      { e: '🩹', c: 'med' }, { e: '💊', c: 'med' },
+    ];
+    const comps = [{ k: 'food', n: '🍱 食物袋' }, { k: 'tool', n: '🧰 工具袋' }, { k: 'med', n: '⛑️ 医药袋' }, { k: 'main', n: '🎒 大主仓' }];
+    const placed = new Map(); let sel = null, dumped = false;
+    const p = panel(`<div class="ptitle">🎒 收拾应急背包</div><div class="phint">风暴来了要撤到山洞。先点一样东西，再点放进哪个袋子。</div><div class="grid4"></div><div class="bag"></div><button class="btn ghost dump">全部塞进大主仓！</button>`);
+    const grid = $('.grid4', p), bag = $('.bag', p);
+    items.forEach(it => {
+      const b = el('button', 'item', `<div class="e">${it.e}</div>`); it.b = b;
+      b.onclick = () => { $$('.item', p).forEach(x => x.classList.remove('sel')); sel = it; b.classList.add('sel'); $$('.comp', p).forEach(c => c.classList.add('ready')); };
+      grid.append(b);
+    });
+    comps.forEach(c => {
+      const d = el('div', 'comp', `<div class="ct">${c.n}</div><div class="cc"></div>`); c.d = d;
+      d.onclick = () => { if (!sel) return; put(sel, c); sel = null; $$('.comp', p).forEach(x => x.classList.remove('ready')); check(); };
+      bag.append(d);
+    });
+    function put(it, c) { placed.set(it, c.k); it.b.classList.remove('sel'); it.b.classList.add('gone'); $('.cc', c.d).textContent += it.e; }
+    $('.dump', p).onclick = () => { dumped = true; items.filter(i => !placed.has(i)).forEach(i => put(i, comps[3])); check(); };
+    function check() {
+      if (placed.size < items.length) return;
+      const right = items.filter(i => placed.get(i) === i.c).length;
+      if (dumped && right < 4) add('JP', -1, .9, '收拾背包时，你一键把所有东西塞进了大主仓');
+      else add('JP', right / items.length * 2 - 1, .9, right >= 6 ? '收拾背包时，你把每样东西都分门别类放好了' : null);
+      setTimeout(() => { clearStage(); res(); }, 500);
+    }
+  });
+}
+async function day4() {
+  await dayCard(4, '风暴将至', '主线：找到绳索');
+  setScene('dusk'); vignette('🌩️', ['ma', 'chen']);
+  await talk([['ma', '海鸟都往内陆飞了。今晚会有大风暴。'], ['chen', '天黑之前，营地得全部收拾好！']]);
+  await planGame();
+  await talk(['营地收拾得差不多了。阿嬷说，最好再准备一个应急背包。']);
+  await packGame();
+  await talk([['ma', '绳索在我家仓库里，拿去把灯塔的吊篮固定好。']]);
+  await gainPart(3);
+  setScene('night'); vignette('🌊');
+  await talk(['离风暴到来还有一个多小时，海面安静得出奇。']);
+  await choose('这段空闲时间，你会——', [
+    O('再把物资清单核对一遍，心里踏实', 'JP', 1, 1, '风暴前最后的空闲，你又把物资清单核对了一遍'),
+    O('准备都做了，去海边看看风暴前的天空', 'JP', -1, 1, '风暴前最后的空闲，你跑去海边看风暴前的天空'),
+  ]);
+  await choose('老陈问：「风暴过后，明天怎么安排？」', [
+    O('「先定好几点集合、谁去哪儿，明早直接行动。」', 'JP', 1, .8),
+    O('「等风停了看情况再说吧。」', 'JP', -1, .8),
+  ]);
+}
+
+/* ================== DAY 5 · 综合 ================== */
+async function day5() {
+  await dayCard(5, '潮灯节', '主线：找到火种');
+  setScene('dusk'); vignette('🏮', ['ma', 'lu', 'chen', 'mu']);
+  await talk(['风暴擦着小岛过去了，没造成太大损失。', ['ma', '今晚是村里的潮灯节，你们都来吧。'], '岛另一侧的小渔村里挂满了灯笼，海面上漂着一盏盏小小的河灯。']);
+  await choose('篝火边响起了鼓声，村民拉着你一起跳舞——', [
+    O('跳就跳！跟着节奏乱跳也开心', 'EI', 1, 1, '潮灯节上，你被拉去跳舞，跳得很开心'),
+    O('笑着摆摆手，在旁边打拍子看大家跳', 'EI', -1, 1, '潮灯节上，你在旁边打着拍子看大家跳舞'),
+  ]);
+  await choose('你想送阿嬷一份谢礼，选了——', [
+    O('一个结实的编织篮，她补渔网时正好用得上', 'SN', 1, 1, '给阿嬷挑谢礼时，你选了实用的编织篮'),
+    O('一枚刻着星星的贝壳——「谢谢您为我们指路」', 'SN', -1, 1, '给阿嬷挑谢礼时，你选了寓意「指路」的星星贝壳'),
+  ]);
+  await choose('小鹿端来她做的鱼汤，咸得发苦。她眼睛亮亮地问：「好喝吗？」', [
+    O('「有点咸了，下次盐少放一半会更好！」', 'TF', 1, 1, '小鹿的鱼汤太咸，你诚实地给了建议'),
+    O('「好喝！今天辛苦你啦。」然后默默多喝几口水', 'TF', -1, 1, '小鹿的鱼汤太咸，你还是笑着说好喝'),
+  ]);
+  await choose('节日有一张手写的节目单——', [
+    O('照着节目单的顺序，一个都不错过', 'JP', 1, 1, '潮灯节上，你照着节目单一个一个看'),
+    O('哪边热闹就往哪边跑', 'JP', -1, 1, '潮灯节上，你哪边热闹就往哪边跑'),
+  ]);
+  await talk([['ma', '这是村里传了四十年的火种。'], ['ma', '灯塔……就拜托你们了。']]);
+  await gainPart(4);
+}
+
+/* ================== DAY 6 · 压力测试 ================== */
+async function day6() {
+  await dayCard(6, '风暴', '主线：找回透镜');
+  setScene('storm'); vignette('🌪️', ['chen', 'lu', 'mu']);
+  await talk([
+    '凌晨，真正的风暴来了。比昨天猛十倍。',
+    '一声巨响——灯塔顶层的窗户被吹开，刚装好的透镜被卷进了风里！',
+    ['chen', '透镜没了，灯塔就点不亮了！'],
+    '（接下来的选择有时间限制，跟着第一反应走！）',
+  ]);
+  const T = 8;
+  const timed = async (q, a, b) => { const { o } = await choose(q, [a, b], { timer: T }); if (!o) await talk(['你愣了一下——没来得及决定，大家已经动起来了。']); };
+  await timed('透镜被卷走了！你第一反应是——',
+    O('吹哨把所有人召集起来', 'EI', 1, 1, rt => `风暴中透镜被卷走，你 ${rt.toFixed(1)} 秒内就吹哨召集了所有人`),
+    O('自己先冲出去找', 'EI', -1, 1, rt => `风暴中透镜被卷走，你 ${rt.toFixed(1)} 秒内就自己冲了出去`));
+  await timed('去哪儿找？',
+    O('沿着潮水的方向，一寸一寸地搜', 'SN', 1, 1),
+    O('凭直觉——它应该被冲进了那片礁湾', 'SN', -1, 1, '风暴中找透镜，你凭直觉直奔那片礁湾'));
+  await timed('老陈被落下的木梁砸伤了腿，大家乱成一团——',
+    O('冷静分工：谁包扎、谁继续找透镜', 'TF', 1, 1, '老陈受伤、大家乱成一团时，你冷静地开始分工'),
+    O('先蹲下陪着老陈，稳住大家的情绪', 'TF', -1, 1, '老陈受伤、大家乱成一团时，你先陪在他身边'));
+  await timed('风暴间隙只有 10 分钟，你要出去——',
+    O('先定好路线和撤回时间再出发', 'JP', 1, 1),
+    O('边走边看，见机行事', 'JP', -1, 1));
+  setScene('dawn'); vignette('💎');
+  await talk(['天亮时，风终于停了。', '你们在礁湾里找到了透镜。它卡在两块石头之间，竟然完好无损。']);
+  await gainPart(5);
+}
+
+/* ================== 加时梦境（维度在 45%~55% 时触发） ================== */
+const TIEBREAK = {
+  EI: [['梦里你来到一座热闹的港口城市，你会——', '钻进人最多的集市，到处跟人聊天', '找一家安静的小咖啡馆，靠窗坐下'],
+       ['梦里有人递给你一个麦克风——', '接过来，说两句', '笑着摆手，递给下一个人']],
+  SN: [['梦里你收到一封没有署名的信，你先注意到——', '信纸的质地、字迹和邮戳', '字里行间似乎藏着的意思'],
+       ['梦里有一扇紧闭的门——', '先看看门锁是什么结构', '想象门后会是怎样一个世界']],
+  TF: [['梦里朋友做了一个你觉得不太好的决定——', '直接指出其中的问题', '先理解他为什么会这样选'],
+       ['梦里你们要选一位队长——', '选能力最强的那个人', '选大家最信任的那个人']],
+  JP: [['梦里你要去旅行——', '先做好一份详细攻略', '买张票就出发'],
+       ['梦里你的书桌——', '每样东西都有固定的位置', '乱中有序，反正我知道东西在哪']],
+};
+async function dream() {
+  const dims = Object.keys(DIMS).filter(d => Math.abs(pct(d) - 50) <= 5);
+  if (!dims.length) return;
+  setScene('night'); vignette('🌙');
+  await talk(['风暴过后的那个夜晚，你睡得很沉。', '你做了一个很长、很长的梦……']);
+  for (const d of dims) for (const [q, a, b] of TIEBREAK[d]) await choose(q, [O(a, d, 1, 1), O(b, d, -1, 1)]);
+  await talk(['……醒来时，窗外的海已经平静了。']);
+}
+
+/* ================== DAY 7 · 点灯 & 结果计算 ================== */
+const ROLES = {
+  INTJ: { e: '🏗️', n: '灯塔设计师', t: '别人还在慌，你已经画好了蓝图。', d: '你习惯站在高处看全局，擅长把混乱变成系统。在岛上，你是那个默默算清材料、工期和风险的人。你不需要很多人理解你，但你的计划往往是对的。', s: ['战略眼光', '独立判断', '追求卓越'], b: '太相信自己的方案时，容易忽略别人的感受和节奏。' },
+  INTP: { e: '🔭', n: '星图解谜者', t: '你想知道的不是怎么做，而是为什么。', d: '你对规律和原理有天生的好奇心。墙上的符号、灯塔的机关，在你眼里都是有趣的谜题。你想得很深，常在别人没注意的地方发现关键。', s: ['逻辑分析', '好奇心', '跳出框架'], b: '想得多、说得少，答案在脑子里转了一百遍还没说出口。' },
+  ENTJ: { e: '⚓', n: '远航船长', t: '风暴来时，大家会下意识看向你。', d: '你天生会组织、会决策，能在混乱中迅速定下方向，并推着大家往前走。修灯塔这件事交给你，马上就有了时间表。', s: ['领导力', '果断', '目标感'], b: '推进得太快时，可能会让身边的人觉得被落下。' },
+  ENTP: { e: '💡', n: '奇想发明家', t: '规则？那只是一个可以被改进的版本。', d: '你脑子里总在冒新点子，喜欢辩论，喜欢尝试没人试过的方法。在岛上，你可能用椰子壳和渔网发明出一个奇怪但好用的东西。', s: ['创意', '应变', '口才'], b: '新点子太多，旧点子还没收尾。' },
+  INFJ: { e: '🌙', n: '潮汐预言者', t: '你总能读懂别人没说出口的话。', d: '你安静，却有很强的洞察力，能感受到人群里细微的情绪变化，对未来也常有准确的直觉。你在意意义，希望自己做的事真正帮到别人。', s: ['洞察力', '共情', '坚定的信念'], b: '把太多情绪藏在心里，容易一个人累坏。' },
+  INFP: { e: '🐚', n: '拾贝诗人', t: '你在沙滩上捡到的，不只是贝壳。', d: '你心里有一片很丰富的海。你忠于自己的价值观，对美和意义很敏感，愿意温柔地对待每一个人。在荒岛上，你是那个会给日落起名字的人。', s: ['理想主义', '真诚', '想象力'], b: '理想和现实落差太大时，容易陷入自我怀疑。' },
+  ENFJ: { e: '🔥', n: '篝火引路人', t: '你让每个人都觉得自己被看见了。', d: '你天生懂得凝聚人心，能看见每个人的长处，并把大家聚到一起。有你在，营地里的争吵会少一半。', s: ['感染力', '责任感', '善于鼓舞'], b: '太照顾别人，常常忘了照顾自己。' },
+  ENFP: { e: '🪁', n: '追风探险家', t: '这座岛的每一个角落，你都想去看看。', d: '你热情、好奇、充满能量，总能在平凡的事里发现惊喜。你的乐观会传染，困境在你眼里更像一场冒险。', s: ['热情', '创造力', '连接他人'], b: '兴趣来得快去得也快，容易半路转向。' },
+  ISTJ: { e: '📋', n: '补给管理员', t: '每一瓶水去了哪里，你都记得。', d: '你踏实、可靠、讲原则，相信把每件小事做好就是最好的办法。营地的物资清单在你手里，从来不会出错。', s: ['可靠', '细致', '执行力'], b: '面对突如其来的变化时，会比别人更不安。' },
+  ISFJ: { e: '🩹', n: '守夜医者', t: '别人睡着时，你还在默默守着。', d: '你温和细心，记得每个人的小习惯，总在别人开口之前就准备好了一切。你的照顾不张扬，却让整个营地都安心。', s: ['体贴', '耐心', '忠诚'], b: '不擅长拒绝，容易把别人的事都扛在自己肩上。' },
+  ESTJ: { e: '📣', n: '营地总指挥', t: '分工、排班、物资——交给你就对了。', d: '你务实、高效、有条理，喜欢清晰的规则和明确的目标。在你的安排下，营地像一台运转良好的机器。', s: ['组织力', '果断', '责任心'], b: '坚持「正确的做法」时，可能显得不够灵活。' },
+  ESFJ: { e: '🍲', n: '炊烟守护者', t: '营地里最暖的那缕炊烟，是你升起的。', d: '你热心、周到，很在意大家是否和睦、是否吃饱穿暖。你擅长把一群陌生人变成一个家。', s: ['热心', '协调力', '重视他人'], b: '太在意别人的评价，偶尔会委屈自己。' },
+  ISTP: { e: '🔧', n: '修船匠', t: '少说话，多动手，问题自然就解决了。', d: '你冷静、务实，对工具和机械有天然的手感。别人还在讨论时，你已经把卡住的齿轮拆开又装好了。', s: ['动手能力', '冷静', '随机应变'], b: '不爱表达，容易让人觉得有点距离感。' },
+  ISFP: { e: '🎨', n: '珊瑚画师', t: '你用自己的方式，把荒岛过成了诗。', d: '你温柔、敏感，活在当下，对色彩、声音和气味都有细腻的感知。你不喜欢被规则束缚，更愿意跟着内心走。', s: ['审美力', '温柔', '真实'], b: '遇到冲突时习惯往后退，把想法藏起来。' },
+  ESTP: { e: '🏄', n: '冲浪先锋', t: '风浪越大，你越兴奋。', d: '你行动力爆表，反应快、胆子大，喜欢在现场解决问题。风暴里第一个冲出去找零件的人，多半就是你。', s: ['行动力', '临场反应', '敢于冒险'], b: '冲得太快时，可能会忽略长远的后果。' },
+  ESFP: { e: '🎉', n: '篝火主持人', t: '有你在的地方，就是派对现场。', d: '你热情、有趣、活在当下，能让周围的人都放松下来。荒岛生活到了你手里，也能变成一场狂欢。', s: ['感染力', '乐观', '亲和力'], b: '不爱做长远规划，偶尔会被现实追着跑。' },
+};
+const PARTNER = { INTJ: 'ENFP', INTP: 'ENTJ', ENTJ: 'INTP', ENTP: 'INFJ', INFJ: 'ENTP', INFP: 'ENFJ', ENFJ: 'INFP', ENFP: 'INTJ', ISTJ: 'ESFP', ISFJ: 'ESTP', ESTJ: 'ISTP', ESFJ: 'ISFP', ISTP: 'ESTJ', ISFP: 'ESFJ', ESTP: 'ISFJ', ESFP: 'ISTJ' };
+const TEMPER = {
+  NT: { c: '#8b7bff', n: '紫色', w: '理性者之光' },
+  NF: { c: '#3ecf8e', n: '绿色', w: '理想者之光' },
+  SJ: { c: '#4a90ff', n: '蓝色', w: '守护者之光' },
+  SP: { c: '#f5a623', n: '金色', w: '探索者之光' },
+};
+const opposite = t => t.split('').map(ch => ({ E: 'I', I: 'E', S: 'N', N: 'S', T: 'F', F: 'T', J: 'P', P: 'J' })[ch]).join('');
+const temperOf = t => t[1] === 'N' ? 'N' + t[2] : 'S' + t[3];
+
+function computeResult() {
+  if (G.journal > 0) add('JP', .6, .25);
+  const L = {}, P = {}, bal = {};
+  for (const d in DIMS) { const s = dimScore(d); L[d] = s >= 0 ? DIMS[d][0] : DIMS[d][1]; P[d] = pct(d); bal[d] = Math.abs(P[d] - 50) <= 5; }
+  const type = L.EI + L.SN + L.TF + L.JP;
+  // 压力模式：平时与风暴中倾向相反
+  const shifts = [];
+  for (const d in DIMS) {
+    if (!G.stress[d].length) continue;
+    const c = dimScore(d, G.calm), s = dimScore(d, G.stress);
+    if (Math.sign(c) !== Math.sign(s) && Math.abs(c) >= .2 && Math.abs(s) >= .5) {
+      const a = c > 0 ? DIMS[d][0] : DIMS[d][1], b = s > 0 ? DIMS[d][0] : DIMS[d][1];
+      shifts.push(`平时你偏向 <b>${a}（${LETTER_NAME[a]}）</b>，但在风暴中会切换到 <b>${b}（${LETTER_NAME[b]}）</b>`);
+    }
+  }
+  // 关键时刻：每个维度挑一条与结果方向一致、权重最高的
+  const picks = [];
+  for (const d in DIMS) {
+    const sign = L[d] === DIMS[d][0] ? 1 : -1;
+    const m = G.moments.filter(x => x.dim === d && Math.sign(x.v) === sign).sort((a, b) => b.w - a.w)[0];
+    if (m) picks.push({ ...m, letter: L[d] });
+  }
+  picks.sort((a, b) => a.day - b.day);
+  return { type, L, P, bal, shifts, picks };
+}
+
+function noteGame() {
+  return new Promise(res => {
+    const p = panel(`<div class="ptitle">✉️ 写给未来的自己</div><div class="phint">阿嬷说：「点灯之前，对着灯许个愿吧。写一句话，给未来的自己。」</div><textarea class="field" maxlength="40" placeholder="比如：别怕，往有光的地方走。"></textarea><div class="row"><button class="btn ghost skip">不写了</button><button class="btn ok">写好了</button></div>`);
+    $('.skip', p).onclick = () => { G.note = ''; clearStage(); res(); };
+    $('.ok', p).onclick = () => { G.note = $('textarea', p).value.trim(); clearStage(); res(); };
+  });
+}
+async function day7() {
+  await dream();
+  await dayCard(7, '点亮灯塔', '最后一夜');
+  setScene('night'); vignette('🗼', ['chen', 'lu', 'mu', 'ma']);
+  await talk([
+    '第七天的夜晚，你们终于爬上了灯塔顶层。',
+    '灯油、齿轮、镜片、绳索、火种、透镜——六样零件，一样不少。',
+    ['lu', '{name}，你来点吧。这一路，是你带着我们走过来的。'],
+  ]);
+  await noteGame();
+  const R = computeResult();
+  const tp = TEMPER[temperOf(R.type)];
+  $('#lh').style.opacity = 0;
+  const s = $('#stage');
+  s.innerHTML = `<div class="big-lh-wrap pop" style="--lamp:${tp.c}">${lighthouseSVG(true)}<div class="cap" style="margin-top:14px;font-weight:800;font-size:18px;opacity:0;transition:opacity 1s">灯塔亮了。</div></div>`;
+  await talk(['你把火种凑近灯芯——']);
+  const w = $('.big-lh-wrap', s);
+  w.style.setProperty('--lampfill', tp.c); w.classList.add('lit'); $('.cap', w).style.opacity = 1;
+  await wait(1200);
+  await talk([`是${tp.n}的光。`, `阿嬷眯起眼睛：「${tp.w}……四十年了，我第一次见到这种颜色。」`, ['ma', '孩子，这座岛会照出每个人心里的样子。来看看你的吧。']]);
+  showResult(R);
+}
+
+/* ================== 结果页 ================== */
+function showResult(R) {
+  const role = ROLES[R.type], tp = TEMPER[temperOf(R.type)];
+  const mate = PARTNER[R.type], foe = opposite(R.type);
+  const bars = Object.keys(DIMS).map(d => {
+    const [a, b] = DIMS[d], pa = R.P[d], pb = 100 - pa, win = R.L[d];
+    return `<div class="bar"><div class="lb"><span class="${win === a ? '' : 'dim'}">${a} ${LETTER_NAME[a]} ${pa}%</span><span class="${win === b ? '' : 'dim'}">${pb}% ${LETTER_NAME[b]} ${b}</span></div><div class="tr"><i data-w="${pa}"></i></div>${R.bal[d] ? `<div class="bal">⚖️ 平衡型：两种倾向你都能自如切换</div>` : ''}</div>`;
+  }).join('');
+  const moms = R.picks.map(m => `<li><span class="d">DAY ${m.day}</span><span>${m.text}</span><span class="k">${m.letter}</span></li>`).join('');
+  const r = el('div', '', `
+    <div class="rhead"><span class="tag">${tp.w.toUpperCase()}</span><div class="emo">${role.e}</div><div class="type">${R.type}</div><div class="role">${role.n}</div><div class="tl">「${role.t}」</div></div>
+    <div class="rbody">
+      <div class="card"><h3>🧭 你的四维倾向</h3>${bars}</div>
+      <div class="card"><h3>🏝️ 岛上的你</h3><p>${role.d}</p></div>
+      ${moms ? `<div class="card"><h3>🎞️ 你的关键时刻</h3><ul class="mom">${moms}</ul></div>` : ''}
+      ${R.shifts.length ? `<div class="card"><h3>🌪️ 压力模式</h3><p>${R.shifts.join('；<br>')}。<br>压力会让人切换到不常用的一面，这很正常，也是你的另一种力量。</p></div>` : ''}
+      <div class="card"><h3>✨ 你的优势</h3><div class="pills">${role.s.map(x => `<span>${x}</span>`).join('')}</div><h3 style="margin-top:16px">🌫️ 你的盲点</h3><p>${role.b}</p></div>
+      <div class="card"><h3>🤝 岛上搭档</h3><div class="mates">
+        <div class="mate"><div class="e">${ROLES[mate].e}</div><div class="t">${mate}</div><div class="n">${ROLES[mate].n}</div><div class="h">💞 最合拍</div></div>
+        <div class="mate"><div class="e">${ROLES[foe].e}</div><div class="t">${foe}</div><div class="n">${ROLES[foe].n}</div><div class="h">⚡ 最需要磨合</div></div>
+      </div></div>
+      ${G.note ? `<div class="card"><h3>✉️ 留给未来的话</h3><div class="quote">${G.note.replace(/[<>&]/g, '')}</div></div>` : ''}
+      <button class="btn poster">生成分享海报</button>
+      <button class="btn ghost again">再漂流一次</button>
+      <div class="disc">本测试基于 MBTI 理论框架，结合情境选择与行为数据进行估算，<br>仅供娱乐与自我探索，不作为心理诊断依据。</div>
+    </div>`);
+  r.id = 'result'; r.style.setProperty('--tc', tp.c);
+  app.append(r);
+  setTimeout(() => $$('.tr i', r).forEach(i => i.style.width = i.dataset.w + '%'), 200);
+  $('.again', r).onclick = () => location.reload();
+  $('.poster', r).onclick = () => {
+    const url = makePoster(R, role, tp);
+    const m = el('div', 'overlay modal', `<div class="panel pop" id="posterBox"><img src="${url}" alt="分享海报"><div class="phint" style="text-align:center;margin:10px 0 0">手机长按图片保存，电脑可点击下载</div><div class="row"><a class="btn" style="text-align:center;text-decoration:none" download="灯塔岛-${R.type}.png" href="${url}">下载海报</a><button class="btn ghost">关闭</button></div></div>`);
+    $('button', m).onclick = () => m.remove();
+    m.style.zIndex = 40; app.append(m);
+  };
+}
+function makePoster(R, role, tp) {
+  const W = 750, H = 1240, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const font = (s, w = 400) => `${w} ${s}px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif`;
+  const rr = (X, Y, w, h, r) => { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); };
+  const wrap = (t, X, Y, maxW, lh) => { let line = '', y = Y; for (const ch of t) { if (x.measureText(line + ch).width > maxW) { x.fillText(line, X, y); line = ch; y += lh; } else line += ch; } x.fillText(line, X, y); return y; };
+  const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, tp.c); g.addColorStop(1, '#1b2148');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  x.textAlign = 'center'; x.fillStyle = '#fff';
+  x.font = font(32, 800); x.fillText('灯塔岛 · 七日漂流', W / 2, 92);
+  x.font = font(22); x.globalAlpha = .75; x.fillText(`${G.name} 的漂流报告 · ${tp.w}`, W / 2, 132); x.globalAlpha = 1;
+  x.fillStyle = '#fffaf0'; rr(50, 170, W - 100, 930, 40); x.fill();
+  x.font = font(150); x.fillText(role.e, W / 2, 360);
+  x.fillStyle = tp.c; x.font = font(112, 900); x.fillText(R.type, W / 2, 500);
+  x.fillStyle = '#2b2a33'; x.font = font(46, 800); x.fillText(role.n, W / 2, 570);
+  x.fillStyle = '#8a8597'; x.font = font(26); wrap(`「${role.t}」`, W / 2, 620, 560, 38);
+  Object.keys(DIMS).forEach((d, i) => {
+    const y = 700 + i * 72, [a, b] = DIMS[d], p = R.P[d];
+    x.font = font(24, 700); x.fillStyle = '#2b2a33';
+    x.textAlign = 'left'; x.fillText(`${a} ${p}%`, 110, y);
+    x.textAlign = 'right'; x.fillText(`${100 - p}% ${b}`, W - 110, y);
+    x.fillStyle = '#eee8dc'; rr(110, y + 14, W - 220, 14, 7); x.fill();
+    x.fillStyle = tp.c; rr(110, y + 14, Math.max(14, (W - 220) * p / 100), 14, 7); x.fill();
+  });
+  x.textAlign = 'center'; x.fillStyle = '#4a4656'; x.font = font(26, 400);
+  wrap(G.note ? `✉️ ${G.note}` : `「${role.s.join(' · ')}」`, W / 2, 1010, 560, 40);
+  x.fillStyle = '#fff'; x.font = font(26, 700); x.fillText('一场荒岛冒险，测出你的 MBTI', W / 2, 1160);
+  x.globalAlpha = .6; x.font = font(20); x.fillText('不做一道题，七天看清你自己', W / 2, 1198);
+  return c.toDataURL('image/png');
+}
+
+/* ================== 主流程 ================== */
+(async function main() {
+  await titleScreen();
+  await prologue();
+  await day1();
+  await day2();
+  await day3();
+  await day4();
+  await day5();
+  await day6();
+  await day7();
+})();
+</script>
+</body>
+</html>
